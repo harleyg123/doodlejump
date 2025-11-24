@@ -42,7 +42,7 @@ while True:
 
         if keys[pygame.K_d]:
                 sprite_rect.x += dt * move_speed
-    print("1")
+    print("2")
     if is_jumping:
         velocity_y += GRAVITY
         sprite_rect.y += velocity_y
