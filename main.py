@@ -10,9 +10,14 @@ screen = pygame.display.set_mode((600, 600))
 clock = pygame.time.Clock()
 dt = clock.get_time()
 
-sprite = pygame.image.load("Doodle Jump\\blue-lik-right.png")
+sprite_right = pygame.image.load("doodlejump\\blue-lik-right.png")
+sprite_left = pygame.image.load("doodlejump\\blue-lik-left.png")
+sprite_shoot = pygame.image.load("doodlejump\\blue-lik-puca.png")
+
+sprite = sprite_right
 sprite_rect = sprite.get_rect()
 sprite_rect.midbottom = (300, 450)  # starting position on ground
+
 
 
 GROUND_Y = 450
@@ -34,13 +39,18 @@ while True:
         if event.type == pygame.KEYDOWN and not is_jumping:
             velocity_y = jump_velocity
             is_jumping = True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                sprite = sprite_shoot
         
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
             sprite_rect.x -= dt * move_speed
+            sprite = sprite_left
 
     if keys[pygame.K_d]:
             sprite_rect.x += dt * move_speed
+            sprite = sprite_right
 
     if is_jumping:
         velocity_y += GRAVITY
