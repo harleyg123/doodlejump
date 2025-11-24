@@ -17,10 +17,10 @@ sprite_rect.midbottom = (300, 450)  # starting position on ground
 
 GROUND_Y = 450
 GRAVITY = 0.6
-jump_velocity = -12
+jump_velocity = -14
 velocity_y = 0
 is_jumping = False
-move_speed = 500
+move_speed = 250
 #C:\Users\G2520640\Documents\doodle\Doodle Jump\doodlestein-right@2x.png
 #C:\Users\G2520640\Documents\doodle\Doodle Jump\game-tiles-space.png
 
@@ -31,18 +31,17 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == K_SPACE and not is_jumping:
-                velocity_y = jump_velocity
-                is_jumping = True
+        if event.type == pygame.KEYDOWN and not is_jumping:
+            velocity_y = jump_velocity
+            is_jumping = True
         
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
-                sprite_rect.x -= dt * move_speed
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_a]:
+            sprite_rect.x -= dt * move_speed
 
-        if keys[pygame.K_d]:
-                sprite_rect.x += dt * move_speed
-    print("2")
+    if keys[pygame.K_d]:
+            sprite_rect.x += dt * move_speed
+
     if is_jumping:
         velocity_y += GRAVITY
         sprite_rect.y += velocity_y
@@ -50,12 +49,12 @@ while True:
         # Landing on ground
         if sprite_rect.bottom >= GROUND_Y:
             sprite_rect.bottom = GROUND_Y
-            velocity_y = 0
-            is_jumping = False
+            velocity_y = jump_velocity 
 
     screen.fill("white")
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
 
     screen.blit(sprite, sprite_rect)
+
 
     pygame.display.update()
