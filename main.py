@@ -14,11 +14,12 @@ sprite_right = pygame.image.load("blue-lik-right.png")
 sprite_left = pygame.image.load("blue-lik-left.png")
 sprite_shoot = pygame.image.load("blue-lik-puca.png")
 
+GROUND_Y = 590
+
 sprite = sprite_right
 sprite_rect = sprite.get_rect()
-sprite_rect.midbottom = (300, 450)
+sprite_rect.midbottom = (300, GROUND_Y)
 
-GROUND_Y = 450
 GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
