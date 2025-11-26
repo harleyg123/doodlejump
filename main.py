@@ -16,6 +16,7 @@ sprite_shoot = pygame.image.load("blue-lik-puca.png")
 
 # Platform
 spritesheet = pygame.image.load("game-tiles-space.png")
+platform_rect = pygame.Rect(200, 450, 64, 16)
 
 GROUND_Y = 590
 
@@ -57,7 +58,7 @@ monsters = [
         "rect": img2.get_rect(),
         "speed": 350,
         "dir": -1,
-        "y": 210
+        "y": 150
     },
     {
         "img": img3,
@@ -118,6 +119,11 @@ while True:
     if is_jumping:
         velocity_y += GRAVITY
         sprite_rect.y += velocity_y
+        if sprite_rect.colliderect(platform_rect):
+            if velocity_y >= 0 and sprite_rect.bottom <= platform_rect.top + 20:
+                sprite_rect.bottom = platform_rect.top
+                velocity_y = jump_velocity
+                
 
         if sprite_rect.bottom >= GROUND_Y:
             sprite_rect.bottom = GROUND_Y
@@ -142,7 +148,9 @@ while True:
     screen.fill("white")
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
     # Platform
-    screen.blit(spritesheet, (200, 450), (0, 0, 64, 16))
+    #screen.blit(spritesheet, (200, 450), (0, 0, 64, 16))
+    screen.blit(spritesheet, platform_rect.topleft, (0, 0, 64, 16))
+   
     screen.blit(sprite, sprite_rect)
 
     for m in monsters:
