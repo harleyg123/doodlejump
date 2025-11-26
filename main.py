@@ -14,6 +14,9 @@ sprite_right = pygame.image.load("blue-lik-right.png")
 sprite_left = pygame.image.load("blue-lik-left.png")
 sprite_shoot = pygame.image.load("blue-lik-puca.png")
 
+# Platform
+spritesheet = pygame.image.load("game-tiles-space.png")
+
 GROUND_Y = 590
 
 sprite = sprite_right
@@ -69,6 +72,7 @@ monsters = [
 monsters[0]["rect"].midtop = (0, monsters[0]["y"])     # começa na esquerda
 monsters[1]["rect"].midtop = (600, monsters[1]["y"])   # começa na direita
 monsters[2]["rect"].midtop = (300, monsters[2]["y"])   # começa no meio
+
 
 
 # --- Game Over ---
@@ -137,7 +141,8 @@ while True:
     # --- Desenho ---
     screen.fill("white")
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
-
+    # Platform
+    screen.blit(spritesheet, (200, 450), (0, 0, 64, 16))
     screen.blit(sprite, sprite_rect)
 
     for m in monsters:
