@@ -16,7 +16,17 @@ sprite_shoot = pygame.image.load("blue-lik-puca.png")
 
 # Platform
 spritesheet = pygame.image.load("game-tiles-space.png")
-platform_rect = pygame.Rect(200, 450, 64, 16)
+
+platforms = [
+    pygame.Rect(200, 450, 64, 16),  
+    pygame.Rect(400, 400, 64, 16),  
+    pygame.Rect(300, 400, 64, 16),  
+    pygame.Rect(100, 350, 64, 16),  
+    pygame.Rect(350, 300, 64, 16),  
+    pygame.Rect(350, 200, 64, 16),
+    pygame.Rect(100, 250, 64, 16)
+]
+
 
 GROUND_Y = 590
 
@@ -51,21 +61,21 @@ monsters = [
         "rect": img1.get_rect(),
         "speed": 250,
         "dir": 1,
-        "y": 150
+        "y": 100
     },
     {
         "img": img2,
         "rect": img2.get_rect(),
         "speed": 350,
         "dir": -1,
-        "y": 150
+        "y": 100
     },
     {
         "img": img3,
         "rect": img3.get_rect(),
         "speed": 300,
         "dir": 1,
-        "y": 120
+        "y": 50
     },
 ]
 
@@ -119,12 +129,17 @@ while True:
     if is_jumping:
         velocity_y += GRAVITY
         sprite_rect.y += velocity_y
-        if sprite_rect.colliderect(platform_rect):
-            if velocity_y >= 0 and sprite_rect.bottom <= platform_rect.top + 20:
-                sprite_rect.bottom = platform_rect.top
-                velocity_y = jump_velocity
+        landed = False
+        
+        for plat in platforms:
+            if sprite_rect.colliderect(plat):
+                if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
+                    sprite_rect.bottom = plat.top
+                    velocity_y = jump_velocity   # auto-jump like your ground
+                    landed = True
+                    break
                 
-
+ 
         if sprite_rect.bottom >= GROUND_Y:
             sprite_rect.bottom = GROUND_Y
             velocity_y = 0
@@ -147,9 +162,11 @@ while True:
     # --- Desenho ---
     screen.fill("white")
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
+    
+    
     # Platform
-    #screen.blit(spritesheet, (200, 450), (0, 0, 64, 16))
-    screen.blit(spritesheet, platform_rect.topleft, (0, 0, 64, 16))
+    for plat in platforms:
+        screen.blit(spritesheet, plat.topleft, (0, 0, 64, 16))
    
     screen.blit(sprite, sprite_rect)
 
