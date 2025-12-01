@@ -6,13 +6,20 @@ pygame.init()
 clock = pygame.time.Clock()
 
 # --- Tela ---
-screen = pygame.display.set_mode((600, 600))
+screen_width = 600
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("3 Monstros Diferentes")
+
 
 # --- Player ---
 sprite_right = pygame.image.load("blue-lik-right.png")
 sprite_left = pygame.image.load("blue-lik-left.png")
 sprite_shoot = pygame.image.load("blue-lik-puca.png")
+
+# Background
+background = pygame.image.load("bck.png")
+background = pygame.transform.scale(background, (screen_width, screen_height))
 
 # Platform
 spritesheet = pygame.image.load("game-tiles-space.png")
@@ -25,6 +32,9 @@ platforms = [
     pygame.Rect(350, 300, 64, 16),
     pygame.Rect(350, 200, 64, 16),
     pygame.Rect(100, 250, 64, 16)
+    pygame.Rect(100, 230, 64, 16),
+    pygame.Rect(350, 180, 64, 16),
+    pygame.Rect(350, 150, 64, 16),
 ]
 
 
@@ -173,7 +183,7 @@ while True:
             game_over = True
 
     # --- Desenho ---
-    screen.fill("white")
+    screen.blit(background, (0, 0))
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
 
     # Platform
