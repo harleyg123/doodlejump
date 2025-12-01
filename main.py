@@ -32,13 +32,17 @@ platform_height = 16
 
 def auto_platform(platforms, highest_y):
     new_y = highest_y - random.randint(minimum_gap, maximum_gap)
-    for i in range(10):
+    placed_count = 0
+    max_placements = 2
+    for i in range(5):
+        if placed_count >= max_placements:
+            break
         new_x = random.randint(0, screen_width - platform_width)
         new_rect = pygame.Rect(new_x, new_y, platform_width, platform_height)
         if not any(p.colliderect(new_rect) for p in platforms):
             platforms.append(new_rect)
-            return new_rect
-    return None
+            placed_count += 1
+    return placed_count > 0
 
 
 GROUND_Y = 590
