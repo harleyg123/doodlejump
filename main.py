@@ -24,6 +24,9 @@ background = pygame.transform.scale(background, (screen_width, screen_height))
 # Platform
 spritesheet = pygame.image.load("game-tiles-space.png")
 
+# def auto_platform():
+
+
 platforms = [
     pygame.Rect(200, 450, 64, 16),
     pygame.Rect(400, 400, 64, 16),
@@ -33,8 +36,11 @@ platforms = [
     pygame.Rect(350, 200, 64, 16),
     pygame.Rect(100, 250, 64, 16),
     pygame.Rect(100, 230, 64, 16),
-    pygame.Rect(350, 180, 64, 16),
-    pygame.Rect(350, 150, 64, 16)
+    pygame.Rect(350, 150, 64, 16),
+    pygame.Rect(350, 100, 64, 16),
+    pygame.Rect(350, 50, 64, 16),
+    pygame.Rect(350, 0, 64, 16)
+
 ]
 
 
