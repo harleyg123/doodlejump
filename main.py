@@ -57,7 +57,7 @@ GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
 is_jumping = False
-move_speed = 250
+move_speed = 350
 
 
 # ======================================================
@@ -81,21 +81,21 @@ monsters = [
         "rect": img1.get_rect(),
         "speed": 250,
         "dir": 1,
-        "y": -500
+        "y": -100
     },
     {
         "img": img2,
         "rect": img2.get_rect(),
         "speed": 350,
         "dir": -1,
-        "y": -500
+        "y": -200
     },
     {
         "img": img3,
         "rect": img3.get_rect(),
         "speed": 300,
         "dir": 1,
-        "y": -500
+        "y": 300
     },
 ]
 
@@ -154,7 +154,6 @@ while True:
         sprite_rect.x += dt * move_speed
         sprite = sprite_right
 
-
     if sprite_rect.right < 0:
         sprite_rect.left = screen_width
 
@@ -185,6 +184,7 @@ while True:
             is_jumping = False
     # Platforms
     top_platform = platforms[0]
+
     platforms.sort(key=lambda p: p.y)
 
     while top_platform.y > camera_y - 600:
