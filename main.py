@@ -183,14 +183,17 @@ while True:
             velocity_y = 0
             is_jumping = False
     # Platforms
+    platforms.sort(key=lambda p: p.y)
     top_platform = platforms[0]
 
-    platforms.sort(key=lambda p: p.y)
-
-    while top_platform.y > camera_y - 600:
-        auto_platform(platforms, top_platform.y)
-        platforms.sort(key=lambda p: p.y)
-        top_platform = platforms[0]
+    while top_platform.y > -100:
+        new_platform_rect = auto_platform(platforms, top_platform.y)
+        if new_platform_rect:
+            platforms.sort(key=lambda p: p.y)
+            top_platform = platforms[0]
+        else:
+            # If auto_platform fails to find a spot after 10 tries, break the loop
+            break
 
     # --- Movimento dos 3 monstros ---
     for m in monsters:
