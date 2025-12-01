@@ -54,7 +54,7 @@ GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
 is_jumping = False
-move_speed = 250
+move_speed = 350
 
 # ======================================================
 #   MONSTROS DIFERENTES
@@ -72,9 +72,27 @@ img3 = pygame.transform.scale(img3, (50, 50))
 
 # --- Criar os monstros ---
 monsters = [
-    {"img": img1, "rect": img1.get_rect(), "speed": 250, "dir": 1, "y": -500},
-    {"img": img2, "rect": img2.get_rect(), "speed": 350, "dir": -1, "y": -500},
-    {"img": img3, "rect": img3.get_rect(), "speed": 300, "dir": 1, "y": -500},
+    {
+        "img": img1,
+        "rect": img1.get_rect(),
+        "speed": 250,
+        "dir": 1,
+        "y": -100
+    },
+    {
+        "img": img2,
+        "rect": img2.get_rect(),
+        "speed": 350,
+        "dir": -1,
+        "y": -200
+    },
+    {
+        "img": img3,
+        "rect": img3.get_rect(),
+        "speed": 300,
+        "dir": 1,
+        "y": 300
+    },
 ]
 
 # --- Posições iniciais ---
@@ -179,6 +197,9 @@ while True:
             is_jumping = False
 
     # Platform creation
+    # Platforms
+    top_platform = platforms[0]
+
     platforms.sort(key=lambda p: p.y)
     top_platform = platforms[0]
 
