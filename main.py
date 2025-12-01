@@ -1,6 +1,7 @@
 import pygame
 import sys
 from pygame.locals import QUIT
+import random
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -23,28 +24,30 @@ background = pygame.transform.scale(background, (screen_width, screen_height))
 
 # Platform
 spritesheet = pygame.image.load("game-tiles-space.png")
+maximum_gap = 100
+minimum_gap = 5
+platform_width = 64
+platform_height = 16
 
-# def auto_platform():
 
-
-platforms = [
-    pygame.Rect(200, 450, 64, 16),
-    pygame.Rect(400, 400, 64, 16),
-    pygame.Rect(300, 400, 64, 16),
-    pygame.Rect(100, 350, 64, 16),
-    pygame.Rect(350, 300, 64, 16),
-    pygame.Rect(350, 200, 64, 16),
-    pygame.Rect(100, 250, 64, 16),
-    pygame.Rect(100, 230, 64, 16),
-    pygame.Rect(350, 150, 64, 16),
-    pygame.Rect(350, 100, 64, 16),
-    pygame.Rect(350, 50, 64, 16),
-    pygame.Rect(350, 0, 64, 16)
-
-]
+def auto_platform(platforms, highest_y):
+    new_y = highest_y - random.randint(minimum_gap, maximum_gap)
+    for i in range(10):
+        new_x = random.randint(0, screen_width - platform_width)
+        new_rect = pygame.Rect(new_x, new_y, platform_width, platform_height)
+        if not any(p.colliderect(new_rect) for p in platforms):
+            platforms.append(new_rect)
+            return new_rect
+    return None
 
 
 GROUND_Y = 590
+platforms = [
+]
+start_platform = pygame.Rect(
+    300, GROUND_Y - 50, platform_width, platform_height)
+platforms.append(start_platform)
+
 
 sprite = sprite_right
 sprite_rect = sprite.get_rect()
@@ -173,6 +176,14 @@ while True:
             sprite_rect.bottom = GROUND_Y
             velocity_y = 0
             is_jumping = False
+    # Platforms
+    top_platform = platforms[0]
+    platforms.sort(key=lambda p: p.y)
+
+    while top_platform.y > camera_y - 600:
+        auto_platform(platforms, top_platform.y)
+        platforms.sort(key=lambda p: p.y)
+        top_platform = platforms[0]
 
     # --- Movimento dos 3 monstros ---
     for m in monsters:
