@@ -138,12 +138,19 @@ while True:
 
     # --- Movimento do Player (somente lados) ---
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_a]:
+    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         sprite_rect.x -= dt * move_speed
         sprite = sprite_left
-    if keys[pygame.K_d]:
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
         sprite_rect.x += dt * move_speed
         sprite = sprite_right
+
+
+    if sprite_rect.right < 0:
+        sprite_rect.left = screen_width
+
+    if sprite_rect.left > screen_width:
+        sprite_rect.right = 0
 
     # --- AUTO-JUMP infinito ---
     if not is_jumping and sprite_rect.bottom >= GROUND_Y:
