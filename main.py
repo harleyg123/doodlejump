@@ -32,13 +32,17 @@ platform_height = 16
 
 def auto_platform(platforms, highest_y):
     new_y = highest_y - random.randint(minimum_gap, maximum_gap)
-    for i in range(10):
+    placed_count = 0
+    max_placements = 2
+    for i in range(5):
+        if placed_count >= max_placements:
+            break
         new_x = random.randint(0, screen_width - platform_width)
         new_rect = pygame.Rect(new_x, new_y, platform_width, platform_height)
         if not any(p.colliderect(new_rect) for p in platforms):
             platforms.append(new_rect)
-            return new_rect
-    return None
+            placed_count += 1
+    return placed_count > 0
 
 
 GROUND_Y = 590
@@ -198,15 +202,17 @@ while True:
 
     # Platform creation
     # Platforms
-    top_platform = platforms[0]
-
     platforms.sort(key=lambda p: p.y)
     top_platform = platforms[0]
 
-    while top_platform.y > camera_y - 600:
-        auto_platform(platforms, top_platform.y)
-        platforms.sort(key=lambda p: p.y)
-        top_platform = platforms[0]
+    while top_platform.y > -100:
+        new_platform_rect = auto_platform(platforms, top_platform.y)
+        if new_platform_rect:
+            platforms.sort(key=lambda p: p.y)
+            top_platform = platforms[0]
+        else:
+            # If auto_platform fails to find a spot after 10 tries, break the loop
+            break
 
     # --- Movimento dos Monstros ---
     for m in monsters:
