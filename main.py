@@ -42,12 +42,9 @@ def auto_platform(platforms, highest_y):
 
 
 GROUND_Y = 590
-platforms = [
-]
-start_platform = pygame.Rect(
-    300, GROUND_Y - 50, platform_width, platform_height)
+platforms = []
+start_platform = pygame.Rect(300, GROUND_Y - 50, platform_width, platform_height)
 platforms.append(start_platform)
-
 
 sprite = sprite_right
 sprite_rect = sprite.get_rect()
@@ -59,7 +56,6 @@ velocity_y = 0
 is_jumping = False
 move_speed = 250
 
-
 # ======================================================
 #   MONSTROS DIFERENTES
 # ======================================================
@@ -69,47 +65,36 @@ img1 = pygame.image.load("green_monster.png")
 img2 = pygame.image.load("monster_antenas.png")
 img3 = pygame.image.load("monster_W_wings.png")
 
-# --- Redimensionar (ajuste o tamanho que quiser) ---
+# --- Redimensionar ---
 img1 = pygame.transform.scale(img1, (60, 60))
 img2 = pygame.transform.scale(img2, (70, 70))
 img3 = pygame.transform.scale(img3, (50, 50))
 
 # --- Criar os monstros ---
 monsters = [
-    {
-        "img": img1,
-        "rect": img1.get_rect(),
-        "speed": 250,
-        "dir": 1,
-        "y": -500
-    },
-    {
-        "img": img2,
-        "rect": img2.get_rect(),
-        "speed": 350,
-        "dir": -1,
-        "y": -500
-    },
-    {
-        "img": img3,
-        "rect": img3.get_rect(),
-        "speed": 300,
-        "dir": 1,
-        "y": -500
-    },
+    {"img": img1, "rect": img1.get_rect(), "speed": 250, "dir": 1, "y": -500},
+    {"img": img2, "rect": img2.get_rect(), "speed": 350, "dir": -1, "y": -500},
+    {"img": img3, "rect": img3.get_rect(), "speed": 300, "dir": 1, "y": -500},
 ]
 
 # --- Posições iniciais ---
-monsters[0]["rect"].midtop = (0, monsters[0]["y"])     # começa na esquerda
-monsters[1]["rect"].midtop = (600, monsters[1]["y"])   # começa na direita
-monsters[2]["rect"].midtop = (300, monsters[2]["y"])   # começa no meio
+monsters[0]["rect"].midtop = (0, -500)
+monsters[1]["rect"].midtop = (600, -500)
+monsters[2]["rect"].midtop = (300, -500)
 
-# Camera System
+# --- Tiro ---
+bullets = []
+bullet_speed = 500
+bullet_img = pygame.image.load("tiro.png")
+bullet_img = pygame.transform.scale(bullet_img, (15, 15))
+
+
+
+# Camera
 camera_y = 0
 camera_trigger_y = 250
 
-
-# --- Game Over ---
+# Game Over
 font = pygame.font.Font(None, 60)
 game_over = False
 
@@ -123,11 +108,22 @@ while True:
 
         if game_over:
             continue
+        keys = pygame.key.get_pressed()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
+            if event.button == 1 :
                 sprite = sprite_shoot
+                bullet_rect = bullet_img.get_rect()
+                bullet_rect.midbottom = sprite_rect.midtop
+                bullets.append(bullet_rect)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                sprite = sprite_shoot
+                bullet_rect = bullet_img.get_rect()
+                bullet_rect.midbottom = sprite_rect.midtop
+                bullets.append(bullet_rect)
 
+    # Camera follow
     if sprite_rect.top < camera_trigger_y:
         shift = camera_trigger_y - sprite_rect.top
         sprite_rect.y += shift
@@ -137,6 +133,8 @@ while True:
             plat.y += shift
         for m in monsters:
             m["rect"].y += shift
+        for b in bullets:
+            b.y += shift
 
     if game_over:
         screen.fill("white")
@@ -145,8 +143,8 @@ while True:
         pygame.display.update()
         continue
 
-    # --- Movimento do Player (somente lados) ---
-    keys = pygame.key.get_pressed()
+    # --- Movimento do Player ---
+    
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         sprite_rect.x -= dt * move_speed
         sprite = sprite_left
@@ -154,14 +152,12 @@ while True:
         sprite_rect.x += dt * move_speed
         sprite = sprite_right
 
-
     if sprite_rect.right < 0:
         sprite_rect.left = screen_width
-
     if sprite_rect.left > screen_width:
         sprite_rect.right = 0
 
-    # --- AUTO-JUMP infinito ---
+    # --- AUTO JUMP ---
     if not is_jumping and sprite_rect.bottom >= GROUND_Y:
         is_jumping = True
         velocity_y = jump_velocity
@@ -169,54 +165,74 @@ while True:
     if is_jumping:
         velocity_y += GRAVITY
         sprite_rect.y += velocity_y
-        landed = False
 
         for plat in platforms:
             if sprite_rect.colliderect(plat):
                 if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
                     sprite_rect.bottom = plat.top
-                    velocity_y = jump_velocity   # auto-jump like your ground
-                    landed = True
+                    velocity_y = jump_velocity
                     break
 
         if sprite_rect.bottom >= GROUND_Y:
             sprite_rect.bottom = GROUND_Y
             velocity_y = 0
             is_jumping = False
-    # Platforms
-    top_platform = platforms[0]
+
+    # Platform creation
     platforms.sort(key=lambda p: p.y)
+    top_platform = platforms[0]
 
     while top_platform.y > camera_y - 600:
         auto_platform(platforms, top_platform.y)
         platforms.sort(key=lambda p: p.y)
         top_platform = platforms[0]
 
-    # --- Movimento dos 3 monstros ---
+    # --- Movimento dos Monstros ---
     for m in monsters:
         m["rect"].x += m["dir"] * m["speed"] * dt
 
-        # troca direção ao bater na borda
         if m["rect"].left <= 0:
             m["dir"] = 1
         if m["rect"].right >= 600:
             m["dir"] = -1
 
-        # colisão com qualquer monstro => Game Over
         if sprite_rect.colliderect(m["rect"]):
             game_over = True
+
+    # --- Movimento dos Tiros ---
+    for b in bullets[:]:
+        b.y -= bullet_speed * dt
+        if b.bottom < 0:
+            bullets.remove(b)
+
+    # --- Colisão: Tiro x Monstro ---
+    for b in bullets[:]:
+        for m in monsters[:]:
+            if b.colliderect(m["rect"]):
+                bullets.remove(b)
+                monsters.remove(m)
+                break
+
+    
 
     # --- Desenho ---
     screen.blit(background, (0, 0))
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
 
-    # Platform
     for plat in platforms:
         screen.blit(spritesheet, plat.topleft, (0, 0, 64, 16))
 
+    # Player
     screen.blit(sprite, sprite_rect)
 
+    # Tiros
+    for b in bullets:
+        screen.blit(bullet_img, b)
+
+    # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
+
+
 
     pygame.display.update()
