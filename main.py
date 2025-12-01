@@ -18,11 +18,11 @@ sprite_shoot = pygame.image.load("blue-lik-puca.png")
 spritesheet = pygame.image.load("game-tiles-space.png")
 
 platforms = [
-    pygame.Rect(200, 450, 64, 16),  
-    pygame.Rect(400, 400, 64, 16),  
-    pygame.Rect(300, 400, 64, 16),  
-    pygame.Rect(100, 350, 64, 16),  
-    pygame.Rect(350, 300, 64, 16),  
+    pygame.Rect(200, 450, 64, 16),
+    pygame.Rect(400, 400, 64, 16),
+    pygame.Rect(300, 400, 64, 16),
+    pygame.Rect(100, 350, 64, 16),
+    pygame.Rect(350, 300, 64, 16),
     pygame.Rect(350, 200, 64, 16),
     pygame.Rect(100, 250, 64, 16)
 ]
@@ -62,21 +62,21 @@ monsters = [
         "rect": img1.get_rect(),
         "speed": 250,
         "dir": 1,
-        "y": 100
+        "y": -500
     },
     {
         "img": img2,
         "rect": img2.get_rect(),
         "speed": 350,
         "dir": -1,
-        "y": 100
+        "y": -500
     },
     {
         "img": img3,
         "rect": img3.get_rect(),
         "speed": 300,
         "dir": 1,
-        "y": 50
+        "y": -500
     },
 ]
 
@@ -85,6 +85,9 @@ monsters[0]["rect"].midtop = (0, monsters[0]["y"])     # começa na esquerda
 monsters[1]["rect"].midtop = (600, monsters[1]["y"])   # começa na direita
 monsters[2]["rect"].midtop = (300, monsters[2]["y"])   # começa no meio
 
+# Camera System
+camera_y = 0
+camera_trigger_y = 250
 
 
 # --- Game Over ---
@@ -105,6 +108,16 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 sprite = sprite_shoot
+
+    if sprite_rect.top < camera_trigger_y:
+        shift = camera_trigger_y - sprite_rect.top
+        sprite_rect.y += shift
+        camera_y += shift
+
+        for plat in platforms:
+            plat.y += shift
+        for m in monsters:
+            m["rect"].y += shift
 
     if game_over:
         screen.fill("white")
@@ -131,7 +144,7 @@ while True:
         velocity_y += GRAVITY
         sprite_rect.y += velocity_y
         landed = False
-        
+
         for plat in platforms:
             if sprite_rect.colliderect(plat):
                 if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
@@ -139,8 +152,7 @@ while True:
                     velocity_y = jump_velocity   # auto-jump like your ground
                     landed = True
                     break
-                
- 
+
         if sprite_rect.bottom >= GROUND_Y:
             sprite_rect.bottom = GROUND_Y
             velocity_y = 0
@@ -163,12 +175,11 @@ while True:
     # --- Desenho ---
     screen.fill("white")
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
-    
-    
+
     # Platform
     for plat in platforms:
         screen.blit(spritesheet, plat.topleft, (0, 0, 64, 16))
-   
+
     screen.blit(sprite, sprite_rect)
 
     for m in monsters:
