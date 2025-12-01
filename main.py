@@ -31,10 +31,10 @@ platforms = [
     pygame.Rect(100, 350, 64, 16),
     pygame.Rect(350, 300, 64, 16),
     pygame.Rect(350, 200, 64, 16),
-    pygame.Rect(100, 250, 64, 16)
+    pygame.Rect(100, 250, 64, 16),
     pygame.Rect(100, 230, 64, 16),
     pygame.Rect(350, 180, 64, 16),
-    pygame.Rect(350, 150, 64, 16),
+    pygame.Rect(350, 150, 64, 16)
 ]
 
 
