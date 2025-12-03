@@ -47,7 +47,8 @@ def auto_platform(platforms, highest_y):
 
 GROUND_Y = 590
 platforms = []
-start_platform = pygame.Rect(300, GROUND_Y - 50, platform_width, platform_height)
+start_platform = pygame.Rect(
+    300, GROUND_Y - 50, platform_width, platform_height)
 platforms.append(start_platform)
 
 sprite = sprite_right
@@ -58,7 +59,7 @@ GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
 is_jumping = False
-move_speed = 350
+move_speed = 300
 
 # ======================================================
 #   MONSTROS DIFERENTES
@@ -111,7 +112,6 @@ bullet_img = pygame.image.load("tiro.png")
 bullet_img = pygame.transform.scale(bullet_img, (15, 15))
 
 
-
 # Camera
 camera_y = 0
 camera_trigger_y = 250
@@ -133,7 +133,7 @@ while True:
         keys = pygame.key.get_pressed()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1 :
+            if event.button == 1:
                 sprite = sprite_shoot
                 bullet_rect = bullet_img.get_rect()
                 bullet_rect.midbottom = sprite_rect.midtop
@@ -166,7 +166,7 @@ while True:
         continue
 
     # --- Movimento do Player ---
-    
+
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         sprite_rect.x -= dt * move_speed
         sprite = sprite_left
@@ -240,8 +240,6 @@ while True:
                 monsters.remove(m)
                 break
 
-    
-
     # --- Desenho ---
     screen.blit(background, (0, 0))
     pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
@@ -259,7 +257,5 @@ while True:
     # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
-
-
 
     pygame.display.update()
