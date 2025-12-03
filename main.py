@@ -60,7 +60,7 @@ def auto_generate_monsters(spawn_y):
     new_monster = {
         "img": monster_img,
         "rect": rect,
-        "speed": random.choice([0, random.randint(100, 250)]),
+        "speed": random.choice([0, random.randint(100, 250), random.randint(100, 250)]),
         "dir": random.choice([-1, 1]),
         "y": spawn_y
     }
@@ -229,7 +229,7 @@ while True:
         # print(sprite_rect.y - plat.top, sprite_rect.y, plat.top)
         print(camera_y, sprite_rect.y, plat.top,
               camera_y - plat.top, screen_height)
-        if plat.top - sprite_rect.y > 340:
+        if plat.top - sprite_rect.y > 330:
             platforms.remove(plat)
 
     # --- Movimento dos Monstros ---
