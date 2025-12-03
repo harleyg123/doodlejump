@@ -45,6 +45,25 @@ def auto_platform(platforms, highest_y):
     return placed_count > 0
 
 
+# Generating Monsters
+minimum_gap_m = 100
+maximum_gap_m = 400
+
+
+def auto_generate_monsters(spawn_y):
+    monster_img = random.choice([img1, img2, img3])
+    rect = monster_img.get_rect()
+    rect.midtop = (random.randint(50, screen_width - 50), spawn_y)
+    new_monster = {
+        "img": monster_img,
+        "rect": rect,
+        "speed": random.randint(200, 400),
+        "dir": random.choice([-1, 1]),
+        "y": spawn_y
+    }
+    monsters.append(new_monster)
+
+
 GROUND_Y = 590
 platforms = []
 start_platform = pygame.Rect(
@@ -59,7 +78,7 @@ GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
 is_jumping = False
-move_speed = 300
+move_speed = 250
 
 # ======================================================
 #   MONSTROS DIFERENTES
@@ -83,27 +102,12 @@ monsters = [
         "speed": 250,
         "dir": 1,
         "y": -100
-    },
-    {
-        "img": img2,
-        "rect": img2.get_rect(),
-        "speed": 350,
-        "dir": -1,
-        "y": -200
-    },
-    {
-        "img": img3,
-        "rect": img3.get_rect(),
-        "speed": 300,
-        "dir": 1,
-        "y": 300
-    },
+    }
 ]
 
 # --- Posições iniciais ---
 monsters[0]["rect"].midtop = (0, -500)
-monsters[1]["rect"].midtop = (600, -500)
-monsters[2]["rect"].midtop = (300, -500)
+
 
 # --- Tiro ---
 bullets = []
@@ -157,6 +161,17 @@ while True:
             m["rect"].y += shift
         for b in bullets:
             b.y += shift
+
+    monsters.sort(key=lambda m: m["rect"].y)
+    highest_monster_y = monsters[0]["rect"].y if monsters else 0
+
+    # If closest monster above is too close to camera, spawn above
+    while highest_monster_y > -600:  # distance above camera
+        spawn_y = highest_monster_y - \
+            random.randint(minimum_gap_m, maximum_gap_m)
+        auto_generate_monsters(spawn_y)
+        monsters.sort(key=lambda m: m["rect"].y)
+        highest_monster_y = monsters[0]["rect"].y
 
     if game_over:
         screen.fill("white")
