@@ -29,8 +29,11 @@ minimum_gap = 10
 platform_width = 64
 platform_height = 16
 
+platforms = []
 
-def auto_platform(platforms, highest_y):
+
+def auto_platform(highest_y):
+    global platforms
     new_y = highest_y - random.randint(minimum_gap, maximum_gap)
     placed_count = 0
     max_placements = 2
@@ -57,27 +60,25 @@ def auto_generate_monsters(spawn_y):
     new_monster = {
         "img": monster_img,
         "rect": rect,
-        "speed": random.randint(200, 400),
+        "speed": random.choice([0, random.randint(100, 250)]),
         "dir": random.choice([-1, 1]),
         "y": spawn_y
     }
     monsters.append(new_monster)
 
 
-GROUND_Y = 590
-platforms = []
 start_platform = pygame.Rect(
-    300, GROUND_Y - 50, platform_width, platform_height)
+    300, screen_height - 100, platform_width, platform_height)
 platforms.append(start_platform)
+
 
 sprite = sprite_right
 sprite_rect = sprite.get_rect()
-sprite_rect.midbottom = (300, GROUND_Y)
+sprite_rect.midbottom = start_platform.midtop
 
 GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
-is_jumping = False
 move_speed = 250
 
 # ======================================================
@@ -150,7 +151,7 @@ while True:
                 bullets.append(bullet_rect)
 
     # Camera follow
-    if sprite_rect.top < camera_trigger_y:
+    if velocity_y < 0 and sprite_rect.top < camera_trigger_y:
         shift = camera_trigger_y - sprite_rect.top
         sprite_rect.y += shift
         camera_y += shift
@@ -195,48 +196,50 @@ while True:
         sprite_rect.right = 0
 
     # --- AUTO JUMP ---
-    if not is_jumping and sprite_rect.bottom >= GROUND_Y:
-        is_jumping = True
-        velocity_y = jump_velocity
 
-    if is_jumping:
-        velocity_y += GRAVITY
-        sprite_rect.y += velocity_y
+    velocity_y += GRAVITY
+    sprite_rect.y += velocity_y
 
-        for plat in platforms:
-            if sprite_rect.colliderect(plat):
-                if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
-                    sprite_rect.bottom = plat.top
-                    velocity_y = jump_velocity
-                    break
+    # death by falling
+    if sprite_rect.bottom - camera_y > screen_height:
+        game_over = True
+        continue
 
-        if sprite_rect.bottom >= GROUND_Y:
-            sprite_rect.bottom = GROUND_Y
-            velocity_y = 0
-            is_jumping = False
+    for plat in platforms:
+        if sprite_rect.colliderect(plat):
+            if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
+                sprite_rect.bottom = plat.top
+                velocity_y = jump_velocity
+                break
 
     # Platform creation
-    # Platforms
     platforms.sort(key=lambda p: p.y)
     top_platform = platforms[0]
 
     while top_platform.y > -100:
-        new_platform_rect = auto_platform(platforms, top_platform.y)
+        new_platform_rect = auto_platform(top_platform.y)
         if new_platform_rect:
             platforms.sort(key=lambda p: p.y)
             top_platform = platforms[0]
         else:
-            # If auto_platform fails to find a spot after 10 tries, break the loop
+            # If auto_platform fails to find a spot after x tries, break the loop
             break
+    for i in range(len(platforms)-1, 0, -1):
+        plat = platforms[i]
+        # print(sprite_rect.y - plat.top, sprite_rect.y, plat.top)
+        print(camera_y, sprite_rect.y, plat.top,
+              camera_y - plat.top, screen_height)
+        if plat.top - sprite_rect.y > 340:
+            platforms.remove(plat)
 
     # --- Movimento dos Monstros ---
     for m in monsters:
         m["rect"].x += m["dir"] * m["speed"] * dt
-
-        if m["rect"].left <= 0:
-            m["dir"] = 1
-        if m["rect"].right >= 600:
-            m["dir"] = -1
+        if m["speed"] > 0:
+            if m["rect"].left <= 0:
+                m["dir"] = 1
+            if m["rect"].right >= 600:
+                m["dir"] = -1
 
         if sprite_rect.colliderect(m["rect"]):
             if velocity_y > 0 and sprite_rect.bottom <= m["rect"].top + 20:
@@ -261,7 +264,6 @@ while True:
 
     # --- Desenho ---
     screen.blit(background, (0, 0))
-    pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
 
     for plat in platforms:
         screen.blit(spritesheet, plat.topleft, (0, 0, 64, 16))
@@ -276,5 +278,7 @@ while True:
     # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
+
+    pygame.draw.rect(screen, "red", (0, sprite_rect.y, screen_width, 2), 4)
 
     pygame.display.update()
