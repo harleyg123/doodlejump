@@ -46,7 +46,7 @@ def auto_platform(platforms, highest_y):
 
 
 # Generating Monsters
-minimum_gap_m = 100
+minimum_gap_m = 200
 maximum_gap_m = 400
 
 
@@ -239,7 +239,11 @@ while True:
             m["dir"] = -1
 
         if sprite_rect.colliderect(m["rect"]):
-            game_over = True
+            if velocity_y > 0 and sprite_rect.bottom <= m["rect"].top + 20:
+                monsters.remove(m)
+                velocity_y = jump_velocity
+            else:
+                game_over = True
 
     # --- Movimento dos Tiros ---
     for b in bullets[:]:
