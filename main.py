@@ -279,6 +279,4 @@ while True:
     for m in monsters:
         screen.blit(m["img"], m["rect"])
 
-    pygame.draw.rect(screen, "red", (0, sprite_rect.y, screen_width, 2), 4)
-
     pygame.display.update()
