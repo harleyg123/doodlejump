@@ -29,8 +29,11 @@ minimum_gap = 5
 platform_width = 64
 platform_height = 16
 
+platforms = []
 
-def auto_platform(platforms, highest_y):
+
+def auto_platform(highest_y):
+    global platforms
     new_y = highest_y - random.randint(minimum_gap, maximum_gap)
     placed_count = 0
     max_placements = 2
@@ -45,20 +48,38 @@ def auto_platform(platforms, highest_y):
     return placed_count > 0
 
 
-GROUND_Y = 590
-platforms = []
-start_platform = pygame.Rect(300, GROUND_Y - 50, platform_width, platform_height)
+# Generating Monsters
+minimum_gap_m = 200
+maximum_gap_m = 400
+
+
+def auto_generate_monsters(spawn_y):
+    monster_img = random.choice([img1, img2, img3])
+    rect = monster_img.get_rect()
+    rect.midtop = (random.randint(50, screen_width - 50), spawn_y)
+    new_monster = {
+        "img": monster_img,
+        "rect": rect,
+        "speed": random.choice([0, random.randint(100, 250), random.randint(100, 250)]),
+        "dir": random.choice([-1, 1]),
+        "y": spawn_y
+    }
+    monsters.append(new_monster)
+
+
+start_platform = pygame.Rect(
+    300, screen_height - 100, platform_width, platform_height)
 platforms.append(start_platform)
+
 
 sprite = sprite_right
 sprite_rect = sprite.get_rect()
-sprite_rect.midbottom = (300, GROUND_Y)
+sprite_rect.midbottom = start_platform.midtop
 
 GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
-is_jumping = False
-move_speed = 350
+move_speed = 250
 
 # ======================================================
 #   MONSTROS DIFERENTES
@@ -82,34 +103,18 @@ monsters = [
         "speed": 250,
         "dir": 1,
         "y": -100
-    },
-    {
-        "img": img2,
-        "rect": img2.get_rect(),
-        "speed": 350,
-        "dir": -1,
-        "y": -200
-    },
-    {
-        "img": img3,
-        "rect": img3.get_rect(),
-        "speed": 300,
-        "dir": 1,
-        "y": 300
-    },
+    }
 ]
 
 # --- Posições iniciais ---
 monsters[0]["rect"].midtop = (0, -500)
-monsters[1]["rect"].midtop = (600, -500)
-monsters[2]["rect"].midtop = (300, -500)
+
 
 # --- Tiro ---
 bullets = []
 bullet_speed = 500
 bullet_img = pygame.image.load("tiro.png")
 bullet_img = pygame.transform.scale(bullet_img, (15, 15))
-
 
 
 # Camera
@@ -133,7 +138,7 @@ while True:
         keys = pygame.key.get_pressed()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1 :
+            if event.button == 1:
                 sprite = sprite_shoot
                 bullet_rect = bullet_img.get_rect()
                 bullet_rect.midbottom = sprite_rect.midtop
@@ -146,7 +151,7 @@ while True:
                 bullets.append(bullet_rect)
 
     # Camera follow
-    if sprite_rect.top < camera_trigger_y:
+    if velocity_y < 0 and sprite_rect.top < camera_trigger_y:
         shift = camera_trigger_y - sprite_rect.top
         sprite_rect.y += shift
         camera_y += shift
@@ -158,6 +163,17 @@ while True:
         for b in bullets:
             b.y += shift
 
+    monsters.sort(key=lambda m: m["rect"].y)
+    highest_monster_y = monsters[0]["rect"].y if monsters else 0
+
+    # If closest monster above is too close to camera, spawn above
+    while highest_monster_y > -600:  # distance above camera
+        spawn_y = highest_monster_y - \
+            random.randint(minimum_gap_m, maximum_gap_m)
+        auto_generate_monsters(spawn_y)
+        monsters.sort(key=lambda m: m["rect"].y)
+        highest_monster_y = monsters[0]["rect"].y
+
     if game_over:
         screen.fill("white")
         txt = font.render("GAME OVER", True, (255, 0, 0))
@@ -166,7 +182,7 @@ while True:
         continue
 
     # --- Movimento do Player ---
-    
+
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         sprite_rect.x -= dt * move_speed
         sprite = sprite_left
@@ -180,51 +196,57 @@ while True:
         sprite_rect.right = 0
 
     # --- AUTO JUMP ---
-    if not is_jumping and sprite_rect.bottom >= GROUND_Y:
-        is_jumping = True
-        velocity_y = jump_velocity
 
-    if is_jumping:
-        velocity_y += GRAVITY
-        sprite_rect.y += velocity_y
+    velocity_y += GRAVITY
+    sprite_rect.y += velocity_y
 
-        for plat in platforms:
-            if sprite_rect.colliderect(plat):
-                if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
-                    sprite_rect.bottom = plat.top
-                    velocity_y = jump_velocity
-                    break
+    # death by falling
+    if sprite_rect.bottom - camera_y > screen_height:
+        game_over = True
+        continue
 
-        if sprite_rect.bottom >= GROUND_Y:
-            sprite_rect.bottom = GROUND_Y
-            velocity_y = 0
-            is_jumping = False
+    for plat in platforms:
+        if sprite_rect.colliderect(plat):
+            if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
+                sprite_rect.bottom = plat.top
+                velocity_y = jump_velocity
+                break
 
     # Platform creation
-    # Platforms
     platforms.sort(key=lambda p: p.y)
     top_platform = platforms[0]
 
     while top_platform.y > -100:
-        new_platform_rect = auto_platform(platforms, top_platform.y)
+        new_platform_rect = auto_platform(top_platform.y)
         if new_platform_rect:
             platforms.sort(key=lambda p: p.y)
             top_platform = platforms[0]
         else:
-            # If auto_platform fails to find a spot after 10 tries, break the loop
+            # If auto_platform fails to find a spot after x tries, break the loop
             break
+    for i in range(len(platforms)-1, 0, -1):
+        plat = platforms[i]
+        # print(sprite_rect.y - plat.top, sprite_rect.y, plat.top)
+        print(camera_y, sprite_rect.y, plat.top,
+              camera_y - plat.top, screen_height)
+        if plat.top - sprite_rect.y > 330:
+            platforms.remove(plat)
 
     # --- Movimento dos Monstros ---
     for m in monsters:
         m["rect"].x += m["dir"] * m["speed"] * dt
-
-        if m["rect"].left <= 0:
-            m["dir"] = 1
-        if m["rect"].right >= 600:
-            m["dir"] = -1
+        if m["speed"] > 0:
+            if m["rect"].left <= 0:
+                m["dir"] = 1
+            if m["rect"].right >= 600:
+                m["dir"] = -1
 
         if sprite_rect.colliderect(m["rect"]):
-            game_over = True
+            if velocity_y > 0 and sprite_rect.bottom <= m["rect"].top + 20:
+                monsters.remove(m)
+                velocity_y = jump_velocity
+            else:
+                game_over = True
 
     # --- Movimento dos Tiros ---
     for b in bullets[:]:
@@ -240,11 +262,8 @@ while True:
                 monsters.remove(m)
                 break
 
-    
-
     # --- Desenho ---
     screen.blit(background, (0, 0))
-    pygame.draw.line(screen, "black", (0, GROUND_Y), (600, GROUND_Y), 4)
 
     for plat in platforms:
         screen.blit(spritesheet, plat.topleft, (0, 0, 64, 16))
@@ -259,7 +278,5 @@ while True:
     # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
-
-
 
     pygame.display.update()
