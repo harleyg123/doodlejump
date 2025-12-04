@@ -25,7 +25,7 @@ background = pygame.transform.scale(background, (screen_width, screen_height))
 # Platform
 spritesheet = pygame.image.load("game-tiles-space.png")
 maximum_gap = 100
-minimum_gap = 10
+minimum_gap = 5
 platform_width = 64
 platform_height = 16
 
@@ -34,7 +34,7 @@ def auto_platform(platforms, highest_y):
     new_y = highest_y - random.randint(minimum_gap, maximum_gap)
     placed_count = 0
     max_placements = 2
-    for i in range(3):
+    for i in range(5):
         if placed_count >= max_placements:
             break
         new_x = random.randint(0, screen_width - platform_width)
