@@ -206,7 +206,10 @@ while True:
         continue
 
     for plat in platforms:
-        if sprite_rect.colliderect(plat):
+        side_margin = 20
+        feet_rect = pygame.Rect(sprite_rect.x + side_margin, sprite_rect.y,
+                                sprite_rect.width - (side_margin*2), sprite_rect.height)
+        if feet_rect.colliderect(plat):
             if velocity_y >= 0 and sprite_rect.bottom <= plat.top + 20:
                 sprite_rect.bottom = plat.top
                 velocity_y = jump_velocity
@@ -241,7 +244,11 @@ while True:
             if m["rect"].right >= 600:
                 m["dir"] = -1
 
-        if sprite_rect.colliderect(m["rect"]):
+        head_margin = 16
+        side_margin = 15
+        sprite_hitbox = pygame.Rect(
+            sprite_rect.x + side_margin, sprite_rect.y + head_margin, sprite_rect.width - (side_margin*2), sprite_rect.height - head_margin)
+        if sprite_hitbox.colliderect(m["rect"]):
             if velocity_y > 0 and sprite_rect.bottom <= m["rect"].top + 20:
                 monsters.remove(m)
                 velocity_y = jump_velocity
@@ -270,6 +277,23 @@ while True:
 
     # Player
     screen.blit(sprite, sprite_rect)
+    # Debugging: this shows what the exact hitbox of the sprite is. To edit this find and alter head_margin and side_margin
+    # pygame.draw.line(
+    #     screen,
+    #     (255, 0, 0),
+    #     (sprite_rect.left, sprite_rect.y + head_margin),
+    #     (sprite_rect.right, sprite_rect.y + head_margin),
+    #     2  # Thickness of the line
+    # )
+    debug_rect = pygame.Rect(
+        sprite_rect.x + side_margin,
+        sprite_rect.y + head_margin,
+        sprite_rect.width - (side_margin * 2),
+        sprite_rect.height - head_margin
+    )
+
+    # Draw a green box outline (width 2)
+    # #pygame.draw.rect(screen, (0, 255, 0), debug_rect, 2)
 
     # Tiros
     for b in bullets:
