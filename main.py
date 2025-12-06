@@ -3,6 +3,7 @@ import sys
 from pygame.locals import QUIT
 import random
 
+
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -37,7 +38,7 @@ def auto_platform(highest_y):
     new_y = highest_y - random.randint(minimum_gap, maximum_gap)
     placed_count = 0
     max_placements = 2
-    for i in range(5):
+    for i in range(2):
         if placed_count >= max_placements:
             break
         new_x = random.randint(0, screen_width - platform_width)
