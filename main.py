@@ -123,6 +123,45 @@ bullet_img = pygame.transform.scale(bullet_img, (15, 15))
 camera_y = 0
 camera_trigger_y = 250
 
+# Restart game
+
+
+def restart_game():
+    global platforms, monsters, bullets, sprite_rect, velocity_y, camera_y, finish_line_y, game_over, level_completed, sprite
+
+    platforms.clear()
+    start_platform = pygame.Rect(
+        300, screen_height - 100, platform_width, platform_height)
+    platforms.append(start_platform)
+
+    sprite = sprite_right  # Reset to default image
+    sprite_rect.midbottom = start_platform.midtop
+    velocity_y = 0
+
+    monsters.clear()
+    # Add the first starting monster back
+    monsters.append({
+        "img": img1,
+        "rect": img1.get_rect(),
+        "speed": 250,
+        "dir": 1,
+        "y": -100
+    })
+    monsters[0]["rect"].midtop = (0, -500)
+
+    # Reset Bullets & Camera
+    bullets.clear()
+    camera_y = 0
+    finish_line_y = -3000
+
+    # Reset Flags
+    game_over = False
+    level_completed = False
+
+
+# Call it once to start the game initially
+restart_game()
+
 # Game Over
 font = pygame.font.Font(None, 60)
 game_over = False
@@ -136,8 +175,11 @@ while True:
             pygame.quit()
             sys.exit()
 
-        if game_over:
+        if game_over or level_completed:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                restart_game()
             continue
+
         keys = pygame.key.get_pressed()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -188,6 +230,9 @@ while True:
         screen.fill("white")
         txt = font.render("GAME OVER", True, (255, 0, 0))
         screen.blit(txt, (180, 260))
+        restart_txt = pygame.font.Font(None, 40).render(
+            "Press Space to Restart", True, (0, 0, 0))
+        screen.blit(restart_txt, (160, 320))
         pygame.display.update()
         continue
 
@@ -195,6 +240,9 @@ while True:
         screen.fill("white")
         txt = font.render("Level Completed", True, (255, 0, 0))
         screen.blit(txt, (180, 260))
+        restart_txt = pygame.font.Font(None, 40).render(
+            "Press Space to Restart", True, (0, 0, 0))
+        screen.blit(restart_txt, (160, 320))
         pygame.display.update()
         continue
 
