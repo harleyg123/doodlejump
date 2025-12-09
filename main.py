@@ -11,8 +11,9 @@ clock = pygame.time.Clock()
 screen_width = 600
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("3 Monstros Diferentes")
+pygame.display.set_caption("Doodle Jump Remastered")
 
+finish_line_y = -5000
 
 # --- Player ---
 sprite_right = pygame.image.load("blue-lik-right.png")
@@ -162,6 +163,7 @@ while True:
         shift = camera_trigger_y - sprite_rect.top
         sprite_rect.y += shift
         camera_y += shift
+        finish_line_y += shift
 
         for plat in platforms:
             plat.y += shift
@@ -309,5 +311,9 @@ while True:
     # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
+
+    if -10 < finish_line_y < screen_height:
+        pygame.draw.rect(screen, "Black", (0, finish_line_y,
+                         screen_width, 10))
 
     pygame.display.update()
