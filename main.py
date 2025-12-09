@@ -13,7 +13,7 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Doodle Jump Remastered")
 
-finish_line_y = -5000
+finish_line_y = -3000
 
 # --- Player ---
 sprite_right = pygame.image.load("blue-lik-right.png")
@@ -126,6 +126,7 @@ camera_trigger_y = 250
 # Game Over
 font = pygame.font.Font(None, 60)
 game_over = False
+level_completed = False
 
 while True:
     dt = clock.tick(60) / 1000
@@ -186,6 +187,13 @@ while True:
     if game_over:
         screen.fill("white")
         txt = font.render("GAME OVER", True, (255, 0, 0))
+        screen.blit(txt, (180, 260))
+        pygame.display.update()
+        continue
+
+    if level_completed:
+        screen.fill("white")
+        txt = font.render("Level Completed", True, (255, 0, 0))
         screen.blit(txt, (180, 260))
         pygame.display.update()
         continue
@@ -312,8 +320,11 @@ while True:
     for m in monsters:
         screen.blit(m["img"], m["rect"])
 
+    # LEVEL COMPLETED
     if -10 < finish_line_y < screen_height:
         pygame.draw.rect(screen, "Black", (0, finish_line_y,
                          screen_width, 10))
+    if sprite_rect.bottom + 20 < finish_line_y:
+        level_completed = True
 
     pygame.display.update()
