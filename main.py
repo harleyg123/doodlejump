@@ -150,6 +150,12 @@ while True:
                 bullet_rect = bullet_img.get_rect()
                 bullet_rect.midbottom = sprite_rect.midtop
                 bullets.append(bullet_rect)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_DOWN:
+                sprite = sprite_shoot
+                bullet_rect = bullet_img.get_rect()
+                bullet_rect.midbottom = sprite_rect.midtop
+                bullets.append(bullet_rect)
 
     # Camera follow
     if velocity_y < 0 and sprite_rect.top < camera_trigger_y:
