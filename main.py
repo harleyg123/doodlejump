@@ -33,6 +33,33 @@ platform_height = 16
 
 platforms = []
 
+breaking_platforms = []
+breaking_sheet = pygame.image.load("game-tiles-space.png")
+breaking_frames = []
+start_x = 0
+start_y = 70
+frame_width = 64
+frame_height = 16
+
+for i in range(4):
+    current_y = start_y + (i * frame_height)
+    img = breaking_sheet.subsurface(
+        (start_x, current_y, frame_width, frame_height))
+    breaking_frames.append(img)
+
+
+def auto_breaking_platform(y_pos):
+    new_x = random.randint(0, screen_width - platform_width)
+    new_rect = pygame.Rect(new_x, y_pos, platform_width, platform_height)
+
+    if not any(p.colliderect(new_rect) for p in platforms):
+        breaking_platforms.append({
+            "rect": new_rect,
+            "frame": 0,
+            "anim_timer": 0,
+            "triggered": False
+        })
+
 
 def auto_platform(highest_y):
     global platforms
@@ -214,6 +241,8 @@ while True:
             m["rect"].y += shift
         for b in bullets:
             b.y += shift
+        for bp in breaking_platforms:
+            bp["rect"].y += shift
 
     monsters.sort(key=lambda m: m["rect"].y)
     highest_monster_y = monsters[0]["rect"].y if monsters else 0
@@ -279,6 +308,22 @@ while True:
                 sprite_rect.bottom = plat.top
                 velocity_y = jump_velocity
                 break
+    for bp in breaking_platforms[:]:
+
+        if bp["triggered"]:
+            bp["anim_timer"] += dt * 10
+            bp["frame"] = int(bp["anim_timer"])
+            if bp["frame"] >= 4:
+                breaking_platforms.remove(bp)
+                continue
+
+        feet_rect = pygame.Rect(sprite_rect.x + 20, sprite_rect.y,
+                                sprite_rect.width - 40, sprite_rect.height)
+
+        if feet_rect.colliderect(bp["rect"]):
+            # If falling onto it
+            if velocity_y > 0 and sprite_rect.bottom <= bp["rect"].top + 20:
+                bp["triggered"] = True
 
     # Platform creation
     platforms.sort(key=lambda p: p.y)
@@ -286,6 +331,8 @@ while True:
 
     while top_platform.y > -100:
         new_platform_rect = auto_platform(top_platform.y)
+        if random.random() < 0.1:
+            auto_breaking_platform(top_platform.y - 50)
         if new_platform_rect:
             platforms.sort(key=lambda p: p.y)
             top_platform = platforms[0]
@@ -367,6 +414,10 @@ while True:
     # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
+
+    for bp in breaking_platforms:
+        current_frame = min(bp["frame"], 3)
+        screen.blit(breaking_frames[current_frame], bp["rect"])
 
     # LEVEL COMPLETED
     if -10 < finish_line_y < screen_height:
