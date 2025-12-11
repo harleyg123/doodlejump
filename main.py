@@ -7,6 +7,27 @@ import random
 pygame.init()
 clock = pygame.time.Clock()
 
+# Load highscore
+
+
+def load_highscore():
+    try:
+        with open("highscore.txt", "r") as f:
+            return int(f.read())
+    except:
+        return 0
+
+
+def save_highscore(new_score):
+    try:
+        with open("highscore.txt", "w") as f:
+            f.write(str(new_score))
+    except:
+        print("Error saving score")
+
+
+high_score = load_highscore()
+
 # --- Tela ---
 screen_width = 600
 screen_height = 600
@@ -192,7 +213,7 @@ def restart_game():
     # Tiros e câmera
     bullets.clear()
     camera_y = 0
-    finish_line_y = -3000
+    finish_line_y = -10000
 
     # Flags
     game_over = False
@@ -235,6 +256,10 @@ while True:
 
     # Telas de fim: GAME OVER
     if game_over:
+        if score > high_score:
+            high_score = score
+            save_highscore(high_score)
+
         screen.fill("white")
         txt = font.render("GAME OVER", True, (255, 0, 0))
         screen.blit(txt, (180, 220))
@@ -242,15 +267,25 @@ while True:
             f"Pontuação final: {score}", True, (0, 0, 0)
         )
         screen.blit(score_txt, (170, 280))
+
+        high_score_txt = pygame.font.Font(None, 40).render(
+            f"High Score: {high_score}", True, (255, 215, 0))
+        screen.blit(high_score_txt, (170, 320))
+
         restart_txt = pygame.font.Font(None, 40).render(
             "Pressione Espaço para reiniciar", True, (0, 0, 0)
         )
-        screen.blit(restart_txt, (80, 340))
+        screen.blit(restart_txt, (80, 400))
         pygame.display.update()
         continue
 
     # Tela de fase completa
     if level_completed:
+
+        if score > high_score:
+            high_score = score
+            save_highscore(high_score)
+
         screen.fill("white")
         txt = font.render("Level Completed", True, (0, 150, 0))
         screen.blit(txt, (150, 220))
@@ -261,6 +296,12 @@ while True:
         restart_txt = pygame.font.Font(None, 40).render(
             "Pressione Espaço para reiniciar", True, (0, 0, 0)
         )
+
+        high_score_txt = pygame.font.Font(None, 40).render(
+            f"High Score: {high_score}", True, (255, 215, 0)
+        )
+        screen.blit(high_score_txt, (170, 320))
+
         screen.blit(restart_txt, (80, 340))
         pygame.display.update()
         continue
@@ -288,6 +329,7 @@ while True:
     # Camera follow
     if velocity_y < 0 and sprite_rect.top < camera_trigger_y:
         shift = camera_trigger_y - sprite_rect.top
+        score += int(shift)
         sprite_rect.y += shift
         camera_y += shift
         finish_line_y += shift
@@ -307,7 +349,8 @@ while True:
 
     # Gera novos monstros acima
     while highest_monster_y > -600:
-        spawn_y = highest_monster_y - random.randint(minimum_gap_m, maximum_gap_m)
+        spawn_y = highest_monster_y - \
+            random.randint(minimum_gap_m, maximum_gap_m)
         auto_generate_monsters(spawn_y)
         monsters.sort(key=lambda m: m["rect"].y)
         highest_monster_y = monsters[0]["rect"].y
@@ -395,7 +438,7 @@ while True:
             if velocity_y > 0 and sprite_rect.bottom <= m["rect"].top + 20:
                 monsters.remove(m)
                 velocity_y = jump_velocity
-                score += 5
+                score += 500
             else:
                 game_over = True
 
@@ -411,7 +454,8 @@ while True:
             if b.colliderect(m["rect"]):
                 bullets.remove(b)
                 monsters.remove(m)
-                score += 5
+                score += 500
+
                 break
 
     # --- Desenho ---
@@ -419,6 +463,11 @@ while True:
 
     for plat in platforms:
         screen.blit(spritesheet, plat.topleft, (0, 0, 64, 16))
+
+     # Plataformas quebráveis
+    for bp in breaking_platforms:
+        current_frame = min(bp["frame"], 3)
+        screen.blit(breaking_frames[current_frame], bp["rect"])
 
     # Player
     screen.blit(sprite, sprite_rect)
@@ -430,11 +479,6 @@ while True:
     # Monstros
     for m in monsters:
         screen.blit(m["img"], m["rect"])
-
-    # Plataformas quebráveis
-    for bp in breaking_platforms:
-        current_frame = min(bp["frame"], 3)
-        screen.blit(breaking_frames[current_frame], bp["rect"])
 
     # Linha de chegada
     if -10 < finish_line_y < screen_height:
