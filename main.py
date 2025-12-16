@@ -34,7 +34,7 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Doodle Jump Remastered")
 
-finish_line_y = -3000
+finish_line_y = -1000000000
 
 # --- Player ---
 sprite_right = pygame.image.load("blue-lik-right.png")
@@ -58,16 +58,30 @@ platforms = []
 breaking_platforms = []
 breaking_sheet = pygame.image.load("game-tiles-space.png")
 breaking_frames = []
+
 start_x = 0
 start_y = 70
-frame_width = 64
-frame_height = 16
+frame_width = 58
+frame_height = 22
 
-for i in range(4):
-    current_y = start_y + (i * frame_height)
+# x, y, width, height
+breaking_frames_locations = [
+    (0, 70, 58, 20),
+    (0, 90, 58, 24),
+    (0, 118, 58, 30),
+    (0, 150, 58, 32)
+]
+
+for loc in breaking_frames_locations:
     img = breaking_sheet.subsurface(
-        (start_x, current_y, frame_width, frame_height))
+        pygame.Rect(loc[0], loc[1], loc[2], loc[3]))
     breaking_frames.append(img)
+
+# for i in range(4):
+#     current_y = start_y + (i * frame_height)
+#     img = breaking_sheet.subsurface(
+#         (start_x, current_y, frame_width, frame_height))
+#     breaking_frames.append(img)
 
 
 def auto_breaking_platform(y_pos):
@@ -145,7 +159,7 @@ sprite_rect.midbottom = start_platform.midtop
 GRAVITY = 0.6
 jump_velocity = -14
 velocity_y = 0
-move_speed = 250
+move_speed = 275
 
 # --- Criar a lista inicial de monstros ---
 monsters = [
@@ -213,7 +227,6 @@ def restart_game():
     # Tiros e câmera
     bullets.clear()
     camera_y = 0
-    finish_line_y = -10000
 
     # Flags
     game_over = False
