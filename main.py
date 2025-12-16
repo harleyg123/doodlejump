@@ -406,6 +406,7 @@ while True:
 
         if feet_rect.colliderect(bp["rect"]):
             if velocity_y > 0 and sprite_rect.bottom <= bp["rect"].top + 20:
+                velocity_y = jump_velocity
                 bp["triggered"] = True
 
     # Criação de novas plataformas
